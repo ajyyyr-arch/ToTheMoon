@@ -77,20 +77,34 @@
         let tries = 0;
         let hit = false;
         let combo = [];
+        const frequency = Array(50).fill(0); // indeks 1–49
 
         while (!hit) {
           tries++;
           combo = draw6();
+
+          // Zlicz wystąpienia każdej liczby
+          combo.forEach(n => frequency[n]++);
+
           const matches = combo.filter(n => nums.includes(n)).length;
           if (matches === 6) hit = true;
         }
 
         const timeSec = ((performance.now() - startTime) / 1000).toFixed(2);
+
+        // Znajdź 6 najczęstszych liczb
+        const top6 = [...Array(49).keys()]
+          .map(i => ({ num: i + 1, count: frequency[i + 1] }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 6);
+
         loader.textContent = "";
         resultDiv.innerHTML = `
           🎉 Trafiono 6 z 10 po <b>${tries.toLocaleString()}</b> próbach!<br>
           ⏱ Czas: <b>${timeSec}</b> s<br>
-          Kombinacja: [${combo.join(", ")}]
+          Kombinacja: [${combo.join(", ")}]<br><br>
+          🔢 6 najczęściej losowanych liczb:<br>
+          ${top6.map(x => `${x.num} (${x.count}×)`).join(", ")}
         `;
       }, 100);
     });
