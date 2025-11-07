@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Symulator Lotto – traf 6 z 10</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 40px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    input {
+      width: 40px;
+      text-align: center;
+      margin: 4px;
+      padding: 4px;
+    }
+    button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      background: #0078ff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fcc;
+    }
+    .result {
+      margin-top: 24px;
+      font-size: 18px;
+    }
+    .loader {
+      margin-top: 16px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Symulator Lotto – traf 6 z wybranych 10 liczb</h1>
+  <p>Wpisz 10 różnych liczb z zakresu 1–49:</p>
+  <div id="inputs"></div>
+  <button id="start">Start symulacji</button>
+  <div class="loader" id="loader"></div>
+  <div class="result" id="result"></div>
+
+  <script>
+    const inputsDiv = document.getElementById("inputs");
+    for (let i = 0; i < 10; i++) {
+      const inp = document.createElement("input");
+      inp.type = "number";
+      inp.min = 1;
+      inp.max = 49;
+      inputsDiv.appendChild(inp);
+    }
+
+    document.getElementById("start").addEventListener("click", () => {
+      const nums = [...inputsDiv.querySelectorAll("input")].map(i => +i.value).filter(n => n >= 1 && n <= 49);
+      if (nums.length !== 10 || new Set(nums).size !== 10) {
+        alert("Podaj dokładnie 10 różnych liczb od 1 do 49!");
+        return;
+      }
+
+      const loader = document.getElementById("loader");
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = "";
+      loader.textContent = "Symulacja trwa... może to potrwać chwilę ⏳";
+
+      setTimeout(() => {
+        const startTime = performance.now();
+        let tries = 0;
+        let hit = false;
+        let combo = [];
+
+        while (!hit) {
+          tries++;
+          combo = draw6();
+          const matches = combo.filter(n => nums.includes(n)).length;
+          if (matches === 6) hit = true;
+        }
+
+        const timeSec = ((performance.now() - startTime) / 1000).toFixed(2);
+        loader.textContent = "";
+        resultDiv.innerHTML = `
+          🎉 Trafiono 6 z 10 po <b>${tries.toLocaleString()}</b> próbach!<br>
+          ⏱ Czas: <b>${timeSec}</b> s<br>
+          Kombinacja: [${combo.join(", ")}]
+        `;
+      }, 100);
+    });
+
+    function draw6() {
+      const numbers = Array.from({ length: 49 }, (_, i) => i + 1);
+      const result = [];
+      for (let i = 0; i < 6; i++) {
+        const idx = Math.floor(Math.random() * numbers.length);
+        result.push(numbers.splice(idx, 1)[0]);
+      }
+      return result;
+    }
+  </script>
+</body>
+</html>
